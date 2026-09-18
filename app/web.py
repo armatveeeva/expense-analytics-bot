@@ -1,8 +1,8 @@
 from flask import Flask, render_template, jsonify
 from sqlalchemy import func
-from database import engine, SessionLocal, Base
-from models import User, Expense
-from analytics import get_analytics_data, create_category_chart
+from .database import engine, SessionLocal, Base
+from .models import User, Expense
+from .analytics import get_analytics_data, create_category_chart
 import os
 from dotenv import load_dotenv
 

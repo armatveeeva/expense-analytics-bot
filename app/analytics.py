@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 
 def get_analytics_data(expenses):
     """Аналитика с использованием Pandas"""
@@ -24,7 +25,7 @@ def get_analytics_data(expenses):
     by_category = df.groupby("category")["amount"].agg(["sum", "count", "mean"])
     by_category = by_category.sort_values("sum", ascending=False)
 
-    df["month"] = df["created_at"].dt.to_period("M")
+    df["month"] = df["created_at"].dt.to_period("M").astype(str)
     by_month = df.groupby("month")["amount"].sum()
 
     return {
@@ -42,7 +43,7 @@ def get_analytics_data(expenses):
 
 
 def create_category_chart(expenses):
-    """Создание графика расходов по категориям"""
+    """Возвращает данные для графика в формате JSON"""
     if not expenses:
         return {"message": "Нет данных"}
 
@@ -54,14 +55,8 @@ def create_category_chart(expenses):
     df = pd.DataFrame(data)
     category_totals = df.groupby("category")["amount"].sum().reset_index()
 
-    fig = px.pie(
-        category_totals,
-        values="amount",
-        names="category",
-        title="Расходы по категориям",
-        color_discrete_sequence=px.colors.qualitative.Set3
-    )
-
-    chart_html = fig.to_html(full_html=False, include_plotlyjs=False)
-
-    return {"chart": chart_html}
+    return {
+        "categories": category_totals["category"].tolist(),
+        "amounts": category_totals["amount"].tolist(),
+        "colors": px.colors.qualitative.Vivid[:len(category_totals)]
+    }

@@ -6,8 +6,8 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from database import engine, SessionLocal, Base
-from models import User, Expense
+from .database import engine, SessionLocal, Base
+from .models import User, Expense
 
 ssl._create_default_https_context = ssl._create_unverified_context
 

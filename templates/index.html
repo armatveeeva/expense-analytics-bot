@@ -3,67 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Аналитика расходов</title>
+    <title>Expense Analytics | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="background-glow"></div>
+
+    <div class="container fade-in">
         <header>
-            <h1>📊 Аналитика расходов</h1>
-            <p>Telegram-бот для учета личных финансов</p>
+            <h1 class="logo">Expense Analytics</h1>
+            <p class="subtitle">Умный дашборд для контроля личных финансов</p>
         </header>
 
-        <div class="stats-grid">
+        <div class="bento-grid">
             <div class="stat-card">
-                <h3>Всего пользователей</h3>
-                <p class="stat-value">{{ total_users }}</p>
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3>Всего операций</h3>
+                    <p class="stat-value">{{ total_expenses }}</p>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Всего расходов</h3>
-                <p class="stat-value">{{ total_expenses }}</p>
-            </div>
-            <div class="stat-card">
-                <h3>Общая сумма</h3>
-                <p class="stat-value">{{ "%.2f"|format(total_amount) }} ₽</p>
+
+            <div class="stat-card highlight">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3>Общая сумма</h3>
+                    <p class="stat-value gradient-text">{{ "%.2f"|format(total_amount) }} ₽</p>
+                </div>
             </div>
         </div>
 
-        <div class="charts-section">
-            <h2>Визуализация данных</h2>
-            <div id="category-chart" class="chart-container">
-                <p>Загрузка графика...</p>
+        <div class="charts-section fade-in-delay">
+            <div class="section-header">
+                <h2>Визуализация расходов</h2>
+                <button class="btn-secondary" onclick="loadAnalytics()">Обновить данные</button>
+            </div>
+            <div class="chart-container glass">
+                <div id="category-chart" class="chart-wrapper">
+                    <p class="loading-text">Загрузка аналитики...</p>
+                </div>
             </div>
         </div>
 
-        <div class="api-section">
-            <h2>API Данные</h2>
-            <button onclick="loadAnalytics()">Загрузить аналитику</button>
-            <pre id="api-response"></pre>
+        <div class="api-section fade-in-delay-2 glass">
+            <h2>API Endpoint</h2>
+            <p class="api-desc">Получите сырые данные в формате JSON для интеграции с другими системами.</p>
+            <pre id="api-response">// Нажмите "Обновить данные", чтобы увидеть JSON-ответ</pre>
         </div>
 
         <footer>
-            <p>Создано с помощью Flask, Pandas, Plotly и Telegram Bot API</p>
+            <p class="copyright">© 2026 Anastasiia Matveeva</p>
         </footer>
     </div>
 
     <script>
+        // Загрузка и построение графика при старте страницы
         fetch('/api/chart')
             .then(response => response.json())
             .then(data => {
-                if (data.chart) {
-                    document.getElementById('category-chart').innerHTML = data.chart;
+                if (data.categories && data.categories.length > 0) {
+                    const chartWidth = document.getElementById('category-chart').offsetWidth;
+
+                    const chartData = [{
+                        values: data.amounts,
+                        labels: data.categories,
+                        type: 'pie',
+                        hole: 0.4,
+                        marker: {
+                            colors: data.colors
+                        },
+                        textinfo: 'label+percent',
+                        textfont: {
+                            family: 'Inter, sans-serif',
+                            size: 12,
+                            color: '#f8fafc'
+                        },
+                        hoverinfo: 'label+value+percent'
+                    }];
+
+                    const layout = {
+                        title: {
+                            text: 'Распределение расходов по категориям',
+                            font: {
+                                family: 'Inter, sans-serif',
+                                size: 18,
+                                color: '#f8fafc'
+                            }
+                        },
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        font: {
+                            family: 'Inter, sans-serif',
+                            color: '#f8fafc'
+                        },
+                        margin: { t: 60, b: 20, l: 20, r: 20 },
+                        showlegend: true,
+                        legend: {
+                            font: {
+                                family: 'Inter, sans-serif',
+                                color: '#94a3b8'
+                            },
+                            orientation: 'h',
+                            y: -0.1
+                        },
+                        autosize: true,
+                        height: 450,
+                        width: chartWidth
+                    };
+
+                    const config = {
+                        responsive: true,
+                        displayModeBar: false,
+                        scrollZoom: false
+                    };
+
+                    Plotly.newPlot('category-chart', chartData, layout, config);
+                } else {
+                    document.getElementById('category-chart').innerHTML =
+                        '<p class="loading-text">Нет данных для отображения. Добавьте расходы через Telegram-бота!</p>';
                 }
+            })
+            .catch(error => {
+                console.error('Error loading chart:', error);
+                document.getElementById('category-chart').innerHTML =
+                    '<p class="loading-text">Ошибка загрузки графика</p>';
             });
 
+        // Загрузка аналитики по кнопке
         function loadAnalytics() {
+            const pre = document.getElementById('api-response');
+            pre.textContent = 'Загрузка...';
             fetch('/api/analytics')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('api-response').textContent =
-                        JSON.stringify(data, null, 2);
+                    pre.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    pre.textContent = 'Ошибка: ' + error.message;
                 });
         }
+
+        // Адаптация графика при изменении размера окна
+        window.addEventListener('resize', () => {
+            const chartDiv = document.getElementById('category-chart');
+            if (chartDiv && chartDiv.data) {
+                const newWidth = chartDiv.offsetWidth;
+                Plotly.relayout(chartDiv, { width: newWidth });
+            }
+        });
     </script>
 </body>
 </html>
