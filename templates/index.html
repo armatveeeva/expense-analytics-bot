@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналитика расходов</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Аналитика расходов</h1>
+            <p>Telegram-бот для учета личных финансов</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Всего пользователей</h3>
+                <p class="stat-value">{{ total_users }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Всего расходов</h3>
+                <p class="stat-value">{{ total_expenses }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Общая сумма</h3>
+                <p class="stat-value">{{ "%.2f"|format(total_amount) }} ₽</p>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2>Визуализация данных</h2>
+            <div id="category-chart" class="chart-container">
+                <p>Загрузка графика...</p>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>API Данные</h2>
+            <button onclick="loadAnalytics()">Загрузить аналитику</button>
+            <pre id="api-response"></pre>
+        </div>
+
+        <footer>
+            <p>Создано с помощью Flask, Pandas, Plotly и Telegram Bot API</p>
+        </footer>
+    </div>
+
+    <script>
+        fetch('/api/chart')
+            .then(response => response.json())
+            .then(data => {
+                if (data.chart) {
+                    document.getElementById('category-chart').innerHTML = data.chart;
+                }
+            });
+
+        function loadAnalytics() {
+            fetch('/api/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('api-response').textContent =
+                        JSON.stringify(data, null, 2);
+                });
+        }
+    </script>
+</body>
+</html>
