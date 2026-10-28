@@ -1,7 +1,10 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
 from .database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -12,6 +15,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     expenses = relationship("Expense", back_populates="user")
+
 
 class Expense(Base):
     __tablename__ = "expenses"
