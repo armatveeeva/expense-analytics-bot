@@ -1,8 +1,11 @@
+from collections.abc import Sequence
+from typing import Any
+
 import pandas as pd
 import plotly.express as px
 
 
-def get_analytics_data(expenses):
+def get_analytics_data(expenses: Sequence[Any]) -> dict[str, Any]:
     """Аналитика с использованием Pandas"""
     if not expenses:
         return {"message": "Нет данных"}
@@ -45,7 +48,7 @@ def get_analytics_data(expenses):
     }
 
 
-def create_category_chart(expenses):
+def create_category_chart(expenses: Sequence[Any]) -> dict[str, Any]:
     """Возвращает данные для графика в формате JSON"""
     if not expenses:
         return {"message": "Нет данных"}
