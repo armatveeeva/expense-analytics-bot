@@ -25,7 +25,7 @@ async def add_expense_endpoint(
 ) -> ExpenseRead:
     """Добавляет новый расход."""
     db_expense = await create_expense(db, expense)
-    return ExpenseRead.model_validate(db_expense)  # type: ignore
+    return ExpenseRead.model_validate(db_expense)
 
 
 @app.get("/api/expenses/", response_model=list[ExpenseRead])
