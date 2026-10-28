@@ -51,7 +51,7 @@ warn_unused_ignores = true
 warn_return_any = true
 
 [[tool.mypy.overrides]]
-module = ["plotly.*", "pandas.*", "aiosqlite.*", "flask.*", "pydantic.*", "pydantic_settings.*"]
+module = ["plotly.*", "pandas.*"]
 ignore_missing_imports = true
 
 
