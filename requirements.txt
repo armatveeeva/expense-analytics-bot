@@ -1,8 +1,0 @@
-
-sqlalchemy
-python-dotenv
-aiogram
-plotly
-flask
-aiohttp
-pandas

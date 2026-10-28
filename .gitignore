@@ -1,35 +1,16 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyc
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-
-# Virtual Environment
-.venv/
-venv/
-ENV/
-
-# IDE
 .idea/
 .vscode/
-*.swp
-*.swo
-
-# Environment
+__pycache__/
+*.py[cod]
 .env
-
-# Database
+.env.local
 *.db
-*.sqlite
 *.sqlite3
-
-# Testing
+.venv/
+poetry.lock
+.ruff_cache/
+.mypy_cache/
 .pytest_cache/
-.coverage
-
-# OS
-.DS_Store
+htmlcov/
+dist/
+build/
