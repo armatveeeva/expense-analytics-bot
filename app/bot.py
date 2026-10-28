@@ -1,13 +1,15 @@
+import asyncio
 import os
 import ssl
-import asyncio
-from aiogram import Bot, Dispatcher, types, F
+
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from .database import engine, SessionLocal, Base
-from .models import User, Expense
+
+from .database import Base, SessionLocal, engine
+from .models import Expense, User
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -35,7 +37,7 @@ def get_or_create_user(telegram_id: int, username: str, db: Session) -> User:
 async def cmd_start(message: Message):
     db = SessionLocal()
     try:
-        user = get_or_create_user(message.from_user.id, message.from_user.username, db)
+        get_or_create_user(message.from_user.id, message.from_user.username, db)
         await message.answer(
             f"Привет, {message.from_user.username or 'друг'}! 👋\n\n"
             "Я бот для учета расходов.\n\n"
@@ -56,7 +58,7 @@ async def cmd_add(message: Message):
         "`сумма категория описание`\n\n"
         "Пример: `500 Еда Обед в кафе`\n\n"
         f"Доступные категории: {', '.join(CATEGORIES)}",
-        parse_mode="Markdown"
+        parse_mode="Markdown",
     )
 
 
@@ -69,7 +71,7 @@ async def process_expense(message: Message):
         if len(parts) < 2:
             await message.answer(
                 "Неверный формат. Используйте: `сумма категория описание`",
-                parse_mode="Markdown"
+                parse_mode="Markdown",
             )
             return
 
@@ -91,10 +93,7 @@ async def process_expense(message: Message):
         user = get_or_create_user(message.from_user.id, message.from_user.username, db)
 
         expense = Expense(
-            user_id=user.id,
-            amount=amount,
-            category=category,
-            description=description
+            user_id=user.id, amount=amount, category=category, description=description
         )
         db.add(expense)
         db.commit()
@@ -121,9 +120,7 @@ async def cmd_stats(message: Message):
         expenses = db.query(Expense).filter(Expense.user_id == user.id).all()
 
         if not expenses:
-            await message.answer(
-                "У вас пока нет расходов. Добавьте первый через /add"
-            )
+            await message.answer("У вас пока нет расходов. Добавьте первый через /add")
             return
 
         total = sum(e.amount for e in expenses)
@@ -135,7 +132,9 @@ async def cmd_stats(message: Message):
         stats_text += f"Всего расходов: {len(expenses)}\n"
         stats_text += f"Общая сумма: {total:.2f} руб.\n\n"
         stats_text += "По категориям:\n"
-        for cat, amount in sorted(by_category.items(), key=lambda x: x[1], reverse=True):
+        for cat, amount in sorted(
+            by_category.items(), key=lambda x: x[1], reverse=True
+        ):
             stats_text += f"• {cat}: {amount:.2f} руб.\n"
 
         await message.answer(stats_text)

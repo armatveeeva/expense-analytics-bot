@@ -1,10 +1,12 @@
-from flask import Flask, render_template, jsonify
-from sqlalchemy import func
-from .database import engine, SessionLocal, Base
-from .models import User, Expense
-from .analytics import get_analytics_data, create_category_chart
 import os
+
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template
+from sqlalchemy import func
+
+from .analytics import create_category_chart, get_analytics_data
+from .database import Base, SessionLocal, engine
+from .models import Expense, User
 
 load_dotenv()
 
@@ -15,8 +17,8 @@ project_root = os.path.dirname(basedir)
 
 app = Flask(
     __name__,
-    template_folder=os.path.join(project_root, 'templates'),
-    static_folder=os.path.join(project_root, 'static')
+    template_folder=os.path.join(project_root, "templates"),
+    static_folder=os.path.join(project_root, "static"),
 )
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")
 
@@ -34,7 +36,7 @@ def index():
             "index.html",
             total_users=total_users,
             total_expenses=total_expenses,
-            total_amount=total_amount
+            total_amount=total_amount,
         )
     finally:
         db.close()
@@ -63,4 +65,4 @@ def api_chart():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=os.getenv("FLASK_DEBUG") == "1", port=5000)
