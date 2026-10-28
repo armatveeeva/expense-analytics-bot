@@ -18,7 +18,9 @@ async def get_db():
 
 
 @app.post("/api/expenses/", response_model=ExpenseRead, status_code=201)
-async def add_expense_endpoint(expense: ExpenseCreate, db: AsyncSession = Depends(get_db)):
+async def add_expense_endpoint(
+    expense: ExpenseCreate, db: AsyncSession = Depends(get_db)
+):
     """Добавляет новый расход."""
     return await create_expense(db, expense)
 
