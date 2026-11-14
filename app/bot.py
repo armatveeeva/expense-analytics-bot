@@ -20,8 +20,12 @@ CATEGORIES = ["Еда", "Транспорт", "Развлечения", "Здо�
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message) -> None:
+    if message.from_user is None:
+        return
+
+    username = message.from_user.username or "друг"
     await message.answer(
-        f"Привет, {message.from_user.username or 'друг'}! \n\n"
+        f"Привет, {username}! \n\n"
         "Я бот для учета расходов.\n\n"
         "Команды:\n"
         "/add - Добавить расход (формат: сумма категория описание)\n"
@@ -44,6 +48,12 @@ async def cmd_add(message: Message) -> None:
 
 @dp.message(F.text & ~F.text.startswith("/"))
 async def process_expense(message: Message) -> None:
+    if message.from_user is None:
+        return
+    if message.text is None:
+        return
+
+    user_id = message.from_user.id
     parts = message.text.split(maxsplit=2)
 
     if len(parts) < 2:
@@ -70,7 +80,7 @@ async def process_expense(message: Message) -> None:
     async with AsyncSessionLocal() as db:
         try:
             new_expense = Expense(
-                telegram_id=message.from_user.id,
+                telegram_id=user_id,
                 title=title,
                 amount=amount,
                 category=category,
@@ -89,10 +99,13 @@ async def process_expense(message: Message) -> None:
 
 @dp.message(Command("stats"))
 async def cmd_stats(message: Message) -> None:
+    if message.from_user is None:
+        return
+
+    user_id = message.from_user.id
+
     async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(Expense).where(Expense.telegram_id == message.from_user.id)
-        )
+        result = await db.execute(select(Expense).where(Expense.telegram_id == user_id))
         expenses = result.scalars().all()
 
         if not expenses:
