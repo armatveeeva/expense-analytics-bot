@@ -54,10 +54,12 @@ warn_return_any = true
 module = ["plotly.*", "pandas.*"]
 ignore_missing_imports = true
 
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.poetry]
 package-mode = false
+
+[tool.ruff]
+line-length = 100
